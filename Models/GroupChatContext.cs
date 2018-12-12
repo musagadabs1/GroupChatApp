@@ -4,7 +4,7 @@ namespace GroupChatApp.Models
 {
     public class GroupChatContext:DbContext
     {
-        public GroupChatContext(DbContextOption<GroupChatContext>options):base(options)
+        public GroupChatContext(DbContextOptions<GroupChatContext>options):base(options)
         {
 
         }
