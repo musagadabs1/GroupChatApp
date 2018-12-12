@@ -26,6 +26,21 @@ namespace GroupChatApp.Controllers
         // GET: Chat
         public ActionResult Index()
         {
+            var groups = _groupChatContext.UserGroups
+                        .Where(gp => gp.UserName == _userManager.GetUserName(User))
+                        .Join(_groupChatContext.Groups, ug => ug.GroupId, g => g.ID, (ug, g) =>
+                                new UserGroupViewModel
+                                {
+                                    UserName = ug.UserName,
+                                    GroupId = g.ID,
+                                    GroupName = g.GroupName
+                                })
+                        .ToList();
+
+            ViewData["UserGroups"] = groups;
+
+            // get all users      
+            ViewData["Users"] = _userManager.Users;
             return View();
         }
 
