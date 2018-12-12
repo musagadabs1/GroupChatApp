@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using GroupChatApp.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using GroupChatApp.Models;
 
 namespace GroupChatApp
 {
@@ -33,10 +34,13 @@ namespace GroupChatApp
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+            services.AddDbContext<GroupChatContext>(options =>
+            options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(
-                    Configuration.GetConnectionString("DefaultConnection")));
+            );
+            //services.AddDbContext<ApplicationDbContext>(options =>
+            //    options.UseSqlite(
+            //        Configuration.GetConnectionString("DefaultConnection")));
             services.AddDefaultIdentity<IdentityUser>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
