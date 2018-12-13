@@ -6,6 +6,7 @@ using GroupChatApp.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using PusherServer;
 
 namespace GroupChatApp.Controllers
 {
@@ -51,9 +52,9 @@ namespace GroupChatApp.Controllers
                     Encrypted = true
                 };
                 var pusher = new Pusher(
-                    "PUSHER_APP_ID",
-                    "PUSHER_APP_KEY",
-                    "PUSHER_APP_SECRT",
+                    "671063",
+                    "016b0a9c29ee69a1c1e0",
+                    "67c82f7eec24bfba97ed",
                     options
                 );
 

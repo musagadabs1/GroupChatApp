@@ -6,6 +6,7 @@ using GroupChatApp.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using PusherServer;
 
 namespace GroupChatApp.Controllers
 {
