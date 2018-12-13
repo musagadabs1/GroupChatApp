@@ -37,7 +37,7 @@ namespace GroupChatApp.Controllers
 
             var options = new PusherOptions
             {
-                Cluster = "PUSHER_APP_CLUSTER",
+                Cluster = "mt1",
                 Encrypted = true
             };
             var pusher = new Pusher(
