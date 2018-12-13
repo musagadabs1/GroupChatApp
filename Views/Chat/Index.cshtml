@@ -106,6 +106,15 @@
                         <label for="User">Add Users <br></label> <br>
                         <div class="row">
                             <!-- List users here -->
+                            @foreach(var user in (dynamic)ViewData["Users"])
+                            {
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input type="checkbox" value="@user.UserName" name="UserName[]"/>
+                                        <label class="form-check-label" for="Users">@user.UserName</label>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </form>
                 </div>
