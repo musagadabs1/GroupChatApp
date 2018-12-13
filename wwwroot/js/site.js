@@ -5,8 +5,8 @@
 
 let currentGroupId = null;
 
-var pusher = new Pusher('PUSHER_APP_KEY', {
-    cluster: 'PUSHER_APP_CLUSTER',
+var pusher = new Pusher('016b0a9c29ee69a1c1e0', {
+    cluster: 'mt1',
     encrypted: true
 });
 
@@ -27,7 +27,7 @@ $('#CreateNewGroupButton').click(function () {
         type: 'POST',
         url: "api/group",
         data: JSON.stringify(myData),
-        success: (myData) => {
+        success: (data) => {
             $('#createNewGroup').modal('hide');
         },
         dataType: 'json',
