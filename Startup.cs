@@ -72,6 +72,11 @@ namespace GroupChatApp
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+
+                routes.MapRoute(
+                    name: "pusher_auth",
+                    template: "pusher/auth",
+                    defaults: new { controller = "Auth", action = "ChannelAuth" });
             });
         }
     }

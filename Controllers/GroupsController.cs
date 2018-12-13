@@ -38,7 +38,7 @@ namespace GroupChatApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] NewGroupViewModel group)
+        public async Task<IActionResult> Create([FromBody] NewGroupViewModel group)
         {
             if (group==null ||group.GroupName=="")
             {
@@ -58,6 +58,20 @@ namespace GroupChatApp.Controllers
                 _context.UserGroups.Add(new UserGroup {UserName=userGroup,GroupId=newGroup.ID });
                 _context.SaveChanges();
             }
+            var options = new PusherOptions
+            {
+                Cluster = "PUSHER_APP_CLUSTER",
+                Encrypted = true
+            };
+            var pusher = new Pusher(
+                "671063",
+                "016b0a9c29ee69a1c1e0",
+                "67c82f7eec24bfba97ed",
+            options);
+            var result = await pusher.TriggerAsync(
+                "group_chat", //channel name
+                "new_group", // event name
+            new { newGroup });
             return new ObjectResult(new { status = "Success", data = newGroup });
         }
         // GET: Groups

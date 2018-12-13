@@ -3,6 +3,18 @@
 
 // Write your JavaScript code.
 
+let currentGroupId = null;
+
+var pusher = new Pusher('PUSHER_APP_KEY', {
+    cluster: 'PUSHER_APP_CLUSTER',
+    encrypted: true
+});
+
+var channel = pusher.subscribe('group_chat');
+channel.bind('new_group', function (data) {
+    reloadGroup();
+});
+
 $('#CreateNewGroupButton').click(function () {
     let userNames = $("input[name='UserName[]']:checked").map(function () {
         return $(this).val();
@@ -42,4 +54,51 @@ $('#groups').on('click',".group",function () {
         });
         $('chat_body').html(message);
     });
+    // check the user have subscribed to the channel before.
+    if (!pusher.channel('private-' + group_id)) {
+        let group_channel = pusher.subscribe('private-' + group_id);
+
+        group_channel.bind('new_message', function (data) {
+            if (currentGroupId == data.new_message.GroupId) {
+
+                $(".chat_body").append(`<div class="row chat_message"><b>` + data.new_message.AddedBy + `: </b>` + data.new_message.message + ` </div>`);
+            }
+        });  
+    }
 });
+
+$("#SendMessage").click(function () {
+    $.ajax({
+        type: "POST",
+        url: "/api/message",
+        data: JSON.stringify({
+            AddedBy: $("#UserName").val(),
+            GroupId: $("#currentGroup").val(),
+            message: $("#Message").val(),
+            socketId: pusher.connection.socket_id
+        }),
+        success: (data) => {
+            $(".chat_body").append(`<div class="row chat_message float-right"><b>`
+                + data.data.addedBy + `: </b>` + $("#Message").val() + `</div>`
+            );
+
+            $("#Message").val('');
+        },
+        dataType: 'json',
+        contentType: 'application/json'
+    });
+});
+
+function reloadGroup() {
+    $.get("/api/group", function (data) {
+        let groups = "";
+
+        data.forEach(function (group) {
+            groups += `<div class="group" data-group_id="`
+                + group.groupId + `">` + group.groupName +
+                `</div>`;
+        });
+
+        $("#groups").html(groups);
+    });
+}

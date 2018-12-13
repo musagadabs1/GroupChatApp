@@ -9,68 +9,78 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GroupChatApp.Controllers
 {
-    [Route("api/[controller]")]
-    public class MessagesController : Controller
+    public class AuthController : Controller
     {
         private readonly GroupChatContext _context;
         private readonly UserManager<IdentityUser> _userManager;
-        public MessagesController(GroupChatContext context, UserManager<IdentityUser> userManager)
+
+        public AuthController(GroupChatContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
             _userManager = userManager;
         }
 
-        [HttpGet("{group_id}")]
-        public IEnumerable<Message> GetById(int group_id)
-        {
-            return _context.Messages.Where(gb => gb.GroupId == group_id);
-        }
-
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] MessageViewModel message)
+        public IActionResult ChannelAuth(string channel_name, string socket_id)
         {
-            Message new_message = new Message { AddedBy = _userManager.GetUserName(User), ChatMessage = message.message, GroupId = message.GroupId };
-
-            _context.Messages.Add(new_message);
-            _context.SaveChanges();
-
-            var options = new PusherOptions
+            int group_id;
+            if (!User.Identity.IsAuthenticated)
             {
-                Cluster = "PUSHER_APP_CLUSTER",
-                Encrypted = true
-            };
-            var pusher = new Pusher(
-                "671063",
-                "016b0a9c29ee69a1c1e0",
-                "67c82f7eec24bfba97ed",
-                options
-            );
-            var result = await pusher.TriggerAsync(
-                "private-" + message.GroupId,
-                "new_message",
-            new { new_message },
-            new TriggerOptions() { SocketId = message.SocketId });
-            return new ObjectResult(new { status = "success", data = new_message });
+                return new ContentResult { Content = "Access forbidden", ContentType = "application/json" };
+            }
+
+            try
+            {
+                group_id = Int32.Parse(channel_name.Replace("private-", ""));
+            }
+            catch (FormatException e)
+            {
+                return Json(new { Content = e.Message });
+            }
+
+            var IsInChannel = _context.UserGroups
+                                      .Where(gb => gb.GroupId == group_id
+                                            && gb.UserName == _userManager.GetUserName(User))
+                                      .Count();
+
+            if (IsInChannel > 0)
+            {
+                var options = new PusherOptions
+                {
+                    Cluster = "PUSHER_APP_CLUSTER",
+                    Encrypted = true
+                };
+                var pusher = new Pusher(
+                    "PUSHER_APP_ID",
+                    "PUSHER_APP_KEY",
+                    "PUSHER_APP_SECRT",
+                    options
+                );
+
+                var auth = pusher.Authenticate(channel_name, socket_id).ToJson();
+                return new ContentResult { Content = auth, ContentType = "application/json" };
+            }
+            return new ContentResult { Content = "Access forbidden", ContentType = "application/json" };
         }
-        // GET: Messages
+        // GET: Auth
         public ActionResult Index()
         {
             return View();
         }
 
-        // GET: Messages/Details/5
+        // GET: Auth/Details/5
         public ActionResult Details(int id)
         {
             return View();
         }
 
-        // GET: Messages/Create
+        // GET: Auth/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: Messages/Create
+        // POST: Auth/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(IFormCollection collection)
@@ -87,13 +97,13 @@ namespace GroupChatApp.Controllers
             }
         }
 
-        // GET: Messages/Edit/5
+        // GET: Auth/Edit/5
         public ActionResult Edit(int id)
         {
             return View();
         }
 
-        // POST: Messages/Edit/5
+        // POST: Auth/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, IFormCollection collection)
@@ -110,13 +120,13 @@ namespace GroupChatApp.Controllers
             }
         }
 
-        // GET: Messages/Delete/5
+        // GET: Auth/Delete/5
         public ActionResult Delete(int id)
         {
             return View();
         }
 
-        // POST: Messages/Delete/5
+        // POST: Auth/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)
