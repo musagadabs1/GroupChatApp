@@ -10,6 +10,7 @@ using PusherServer;
 
 namespace GroupChatApp.Controllers
 {
+    
     public class AuthController : Controller
     {
         private readonly GroupChatContext _context;

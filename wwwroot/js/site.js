@@ -4,18 +4,24 @@
 // Write your JavaScript code.
 
 let currentGroupId = null;
+//var pusher = new Pusher('671063', '016b0a9c29ee69a1c1e0', '67c82f7eec24bfba97ed', {
+//   cluster: 'mt1',
+//encrypted: true
+//});
 
-var pusher = new Pusher('PUSHER_APP_KEY', {
-    cluster: 'PUSHER_APP_CLUSTER',
-    encrypted: true
-});
+var pusher = new Pusher('671063', '016b0a9c29ee69a1c1e0', '67c82f7eec24bfba97ed');
+
+//var pusher = new Pusher('016b0a9c29ee69a1c1e0', {
+//    cluster: 'mt1',
+//    encrypted: true
+//});
 
 var channel = pusher.subscribe('group_chat');
 channel.bind('new_group', function (data) {
     reloadGroup();
 });
 
-$('#CreateNewGroupButton').click(function () {
+$('#createNewGroupButton').click(function () {
     let userNames = $("input[name='UserName[]']:checked").map(function () {
         return $(this).val();
     }).get();
@@ -27,7 +33,7 @@ $('#CreateNewGroupButton').click(function () {
         type: 'POST',
         url: "api/group",
         data: JSON.stringify(myData),
-        success: (myData) => {
+        success: (data) => {
             $('#createNewGroup').modal('hide');
         },
         dataType: 'json',
@@ -67,22 +73,22 @@ $('#groups').on('click',".group",function () {
     }
 });
 
-$("#SendMessage").click(function () {
+$("#sendMessage").click(function () {
     $.ajax({
         type: "POST",
         url: "/api/message",
         data: JSON.stringify({
             AddedBy: $("#UserName").val(),
             GroupId: $("#currentGroup").val(),
-            message: $("#Message").val(),
+            message: $("#message").val(),
             socketId: pusher.connection.socket_id
         }),
         success: (data) => {
             $(".chat_body").append(`<div class="row chat_message float-right"><b>`
-                + data.data.addedBy + `: </b>` + $("#Message").val() + `</div>`
+                + data.data.addedBy + `: </b>` + $("#message").val() + `</div>`
             );
 
-            $("#Message").val('');
+            $("#message").val('');
         },
         dataType: 'json',
         contentType: 'application/json'
